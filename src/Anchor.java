@@ -1,11 +1,11 @@
 import processing.core.*;
 
-public class Pivot {
+public class Anchor {
 	
 	private PApplet main;
 	private PVector position;
 	
-	public Pivot(PApplet main, PVector position) {
+	public Anchor(PApplet main, PVector position) {
 		this.main = main;
 		this.position = position;
 	}

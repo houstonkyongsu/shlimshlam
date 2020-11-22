@@ -3,7 +3,8 @@ import processing.core.*;
 public class Player {
 
 	public final PVector GRAVITY = new PVector(0, 1f);
-	public final float DRAG = 0.99f;
+	public final float DRAG = 0.995f;
+	public final double VERTICAL = Math.atan2(100, 0);
 	private PApplet main;
 	private PVector position;
 	private PVector velocity;
@@ -32,23 +33,35 @@ public class Player {
 	public PVector getPosition() {
 		return position;
 	}
+	
+	public void scrollPlayer(PVector dist) {
+		position.add(dist);
+//		swingPoint.add(dist);
+	}
 
 
 	public void setPosition(PVector position) {
 		this.position = position;
 	}
 	
+	public boolean isSwinging() {
+		return swinging;
+	}
 
 	public void setSwinging(PVector swingPoint) {
 		swinging = true;
 		this.swingPoint = swingPoint;
 		radius = Math.sqrt((swingPoint.x - position.x) * (swingPoint.x - position.x) + (swingPoint.y - position.y) * (swingPoint.y - position.y));
 		angle = Math.atan2(position.y - swingPoint.y, position.x - swingPoint.x);
-		pforce = 1;
+		pforce = (Math.sin(velocity.y / radius) + Math.cos(velocity.x / radius)) * 5;
 	}
 	
 	public void setNotSwinging() {
 		swinging = false;
+		double x = pforce * Math.sin(angle - VERTICAL);
+		double y = pforce *  Math.cos(angle - VERTICAL);
+		velocity.x = (float) -(x * 3 + 3);
+		velocity.y = (float) -(y * 1.5 + 8);
 	}
 	
 	public void draw() {
@@ -56,21 +69,18 @@ public class Player {
 			main.stroke(100);
 			main.line(swingPoint.x, swingPoint.y, position.x, position.y);
 		}
-		main.stroke(0);
-		main.fill(0);
+		main.stroke(30, 30, 220);
+		main.fill(30, 30, 220);
 		main.rect(position.x, position.y, 24, 24); // filler values
 	}
 	
 	public void updatePosition() {
 		if (swinging) {
-//			double f = velocity.y * Math.sin(angle) + (velocity.x / Math.cos(angle)); // perpendicular force on rope
-			double vertical = Math.atan2(100, 0);
-			double test = GRAVITY.y * Math.sin(angle-vertical);
+			double test = GRAVITY.y * Math.sin(angle - VERTICAL);
 			double theta = Math.atan(pforce/radius);
-			angle-=theta;
-			pforce*=DRAG;
-			pforce+=test;
-			
+			angle -= theta;
+			pforce *= DRAG;
+			pforce += test;
 			int x = (int) (swingPoint.x + (radius * Math.cos(angle))); // calculate new x coordinate on circle
 			int y = (int) (swingPoint.y + (radius * Math.sin(angle))); // calculate new y coordinate on circle
 			position = new PVector(x,y); // move to new coordinates
